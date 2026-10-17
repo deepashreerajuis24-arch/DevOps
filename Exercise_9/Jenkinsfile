@@ -1,0 +1,81 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Installing Python dependencies...'
+                sh 'python3 -m pip install -r requirements.txt'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running unit tests...'
+                sh 'python3 -m unittest discover -s . -p "test_*.py"'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Copying application to deployment directory...'
+                sh '''
+                    mkdir -p "${WORKSPACE}/python-app-deploy"
+                    cp app.py requirements.txt "${WORKSPACE}/python-app-deploy/"
+                '''
+            }
+        }
+
+        stage('Run Application') {
+            steps {
+                echo 'Starting the Flask application...'
+                sh '''
+                    if [ -f "${WORKSPACE}/python-app-deploy/app.pid" ]; then
+                        old_pid=$(cat "${WORKSPACE}/python-app-deploy/app.pid")
+                        kill "$old_pid" 2>/dev/null || true
+                    fi
+
+                    nohup python3 "${WORKSPACE}/python-app-deploy/app.py" \
+                        > "${WORKSPACE}/python-app-deploy/app.log" 2>&1 &
+                    echo $! > "${WORKSPACE}/python-app-deploy/app.pid"
+                '''
+            }
+        }
+
+        stage('Test Application') {
+            steps {
+                echo 'Testing the deployed application...'
+                sh '''
+                    python3 - <<'PY'
+import time
+import urllib.request
+
+url = "http://127.0.0.1:5000/"
+
+for attempt in range(10):
+    try:
+        with urllib.request.urlopen(url, timeout=2) as response:
+            body = response.read().decode()
+            assert response.status == 200
+            assert body == "Hello, Jenkins Multi-Stage Pipeline!"
+            print("Deployed application test passed!")
+            break
+    except Exception:
+        if attempt == 9:
+            raise
+        time.sleep(1)
+PY
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check the console output.'
+        }
+    }
+}
