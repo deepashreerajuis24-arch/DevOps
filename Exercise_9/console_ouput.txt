@@ -1,0 +1,127 @@
+Started by user Deepashree Naik
+Obtained Exercise_9/Jenkinsfile from git https://github.com/deepashreerajuis24-arch/DevOps.git
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins in /var/jenkins_home/workspace/Python-MultiStage-Pipeline
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+ > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/Python-MultiStage-Pipeline/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/deepashreerajuis24-arch/DevOps.git # timeout=10
+Fetching upstream changes from https://github.com/deepashreerajuis24-arch/DevOps.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --tags --force --progress -- https://github.com/deepashreerajuis24-arch/DevOps.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision 950846f50f8f42fc5aa6a009ead909f59fa415fb (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 950846f50f8f42fc5aa6a009ead909f59fa415fb # timeout=10
+Commit message: "Fix Jenkins pipeline application paths"
+ > git rev-list --no-walk b199977e29b1e11a30fea605af760eff06c3e61f # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Build)
+[Pipeline] dir
+Running in /var/jenkins_home/workspace/Python-MultiStage-Pipeline/Exercise_9
+[Pipeline] {
+[Pipeline] echo
+Installing dependencies...
+[Pipeline] sh
++ python3 -m venv .venv
++ .venv/bin/python -m pip install -r requirements.txt
+Collecting Flask==2.1.2 (from -r requirements.txt (line 1))
+  Using cached Flask-2.1.2-py3-none-any.whl.metadata (3.9 kB)
+Collecting Werkzeug==2.1.2 (from -r requirements.txt (line 2))
+  Using cached Werkzeug-2.1.2-py3-none-any.whl.metadata (4.4 kB)
+Collecting Jinja2>=3.0 (from Flask==2.1.2->-r requirements.txt (line 1))
+  Using cached jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting itsdangerous>=2.0 (from Flask==2.1.2->-r requirements.txt (line 1))
+  Using cached itsdangerous-2.2.0-py3-none-any.whl.metadata (1.9 kB)
+Collecting click>=8.0 (from Flask==2.1.2->-r requirements.txt (line 1))
+  Using cached click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+Collecting MarkupSafe>=2.0 (from Jinja2>=3.0->Flask==2.1.2->-r requirements.txt (line 1))
+  Using cached markupsafe-3.0.4-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+Using cached Flask-2.1.2-py3-none-any.whl (95 kB)
+Using cached Werkzeug-2.1.2-py3-none-any.whl (224 kB)
+Using cached click-8.5.0-py3-none-any.whl (125 kB)
+Using cached itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+Using cached jinja2-3.1.6-py3-none-any.whl (134 kB)
+Using cached markupsafe-3.0.4-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (23 kB)
+Installing collected packages: Werkzeug, MarkupSafe, itsdangerous, click, Jinja2, Flask
+
+Successfully installed Flask-2.1.2 Jinja2-3.1.6 MarkupSafe-3.0.4 Werkzeug-2.1.2 click-8.5.0 itsdangerous-2.2.0
+[Pipeline] }
+[Pipeline] // dir
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Test)
+[Pipeline] dir
+Running in /var/jenkins_home/workspace/Python-MultiStage-Pipeline/Exercise_9
+[Pipeline] {
+[Pipeline] echo
+Running unit tests...
+[Pipeline] sh
++ .venv/bin/python -m unittest discover -s . -p test_*.py
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.025s
+
+OK
+Hello, Jenkins Multi-Stage Pipeline!
+[Pipeline] }
+[Pipeline] // dir
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Deploy)
+[Pipeline] echo
+Deploying application...
+[Pipeline] sh
++ mkdir -p /var/jenkins_home/workspace/Python-MultiStage-Pipeline/Exercise_9/python-app-deploy
++ cp /var/jenkins_home/workspace/Python-MultiStage-Pipeline/Exercise_9/app.py /var/jenkins_home/workspace/Python-MultiStage-Pipeline/Exercise_9/python-app-deploy/
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Run Application)
+[Pipeline] echo
+Starting Flask application...
+[Pipeline] sh
++ [ -f /var/jenkins_home/workspace/Python-MultiStage-Pipeline/Exercise_9/python-app-deploy/app.pid ]
++ echo 1592
++ nohup /var/jenkins_home/workspace/Python-MultiStage-Pipeline/Exercise_9/.venv/bin/python /var/jenkins_home/workspace/Python-MultiStage-Pipeline/Exercise_9/python-app-deploy/app.py
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Test Application)
+[Pipeline] echo
+Testing the deployed application...
+[Pipeline] sh
++ /var/jenkins_home/workspace/Python-MultiStage-Pipeline/Exercise_9/.venv/bin/python -
+Deployed application test passed!
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] echo
+Pipeline completed successfully!
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS
